@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f0f13">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mis Finanzas">
+<title>Mis Finanzas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f13;--bg2:#17171e;--bg3:#1e1e28;
+  --text:#f0eff8;--text2:#9998b0;--text3:#5f5e78;
+  --accent:#7c6ef7;--green:#34c77b;--red:#f05c5c;
+  --radius:16px;--radius-sm:10px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:15px}
+#root{height:100vh;display:flex;flex-direction:column;max-width:480px;margin:0 auto;position:relative;overflow:hidden}
+
+.screen{position:absolute;inset:0;display:none;flex-direction:column;background:var(--bg);z-index:1;overflow-y:auto}
+.screen.active{display:flex}
+
+#screen-splash{align-items:center;justify-content:center;gap:14px;overflow:hidden}
+.splash-logo{width:80px;height:80px;border-radius:24px;background:linear-gradient(135deg,#7c6ef7,#e87dd0);display:flex;align-items:center;justify-content:center;font-size:36px}
+.splash-name{font-family:'Playfair Display';font-size:28px;font-weight:500}
+.splash-tag{font-size:13px;color:var(--text2)}
+
+#screen-auth{padding:20px}
+.auth-top{text-align:center;padding:40px 0 20px}
+.auth-logo{width:60px;height:60px;border-radius:20px;background:linear-gradient(135deg,#7c6ef7,#e87dd0);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px}
+.auth-title{font-family:'Playfair Display';font-size:24px;margin-bottom:6px}
+.auth-sub{font-size:13px;color:var(--text2)}
+
+.users-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}
+.user-card{background:var(--bg3);border:1px solid #2a2a38;border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;text-align:center}
+.user-card:active{background:#252530}
+.user-avatar{width:48px;height:48px;border-radius:50%;background:#7c6ef730;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:600}
+.user-name{font-size:13px;font-weight:500}
+.user-last{font-size:11px;color:var(--text3)}
+
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;color:var(--text2);margin-bottom:6px;display:block}
+.form-input{width:100%;height:48px;background:var(--bg3);border:1px solid #2a2a38;border-radius:var(--radius-sm);padding:0 14px;color:var(--text);font-size:15px;font-family:inherit;outline:none}
+.form-input:focus{border-color:var(--accent)}
+.btn{width:100%;height:50px;border-radius:var(--radius-sm);border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:active{transform:scale(0.98)}
+.btn-ghost{background:var(--bg3);color:var(--text2);border:1px solid #2a2a38}
+.divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--text3);font-size:12px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:#2a2a38}
+.error{font-size:12px;color:var(--red);margin-top:4px;min-height:16px}
+.back-btn{width:40px;height:40px;border-radius:50%;background:var(--bg3);border:1px solid #2a2a38;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:18px;margin-bottom:12px}
+
+#screen-app{overflow:hidden}
+.app-scroll{flex:1;overflow-y:auto;padding-bottom:100px}
+.app-header{padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
+.header-name{font-family:'Playfair Display';font-size:22px;font-weight:500}
+.header-avatar{width:40px;height:40px;border-radius:50%;background:#7c6ef730;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;cursor:pointer}
+
+.hero{margin:14px 20px 0;border-radius:20px;padding:20px;background:linear-gradient(135deg,#2d1f6e,#1a1530);position:relative;overflow:hidden}
+.hero-balance{font-size:32px;font-weight:300;margin-bottom:12px}
+.hero-balance em{font-style:normal;font-size:16px;opacity:0.7}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hero-stat{background:rgba(255,255,255,0.07);border-radius:12px;padding:10px}
+.hero-stat-label{font-size:11px;color:#9998b0;margin-bottom:3px}
+.hero-stat-value{font-size:16px;font-weight:500}
+
+.quick-add{margin:14px 20px 0;background:var(--bg3);border:1px solid #2a2a38;border-radius:var(--radius);padding:14px}
+.qa-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;margin-bottom:10px}
+.qa-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.qa-field{display:flex;flex-direction:column;gap:3px}
+.qa-field label{font-size:11px;color:var(--text3)}
+.qa-input{height:44px;background:var(--bg2);border:1px solid #2a2a38;border-radius:var(--radius-sm);padding:0 12px;color:var(--text);font-size:14px;font-family:inherit;outline:none}
+.qa-input:focus{border-color:var(--accent)}
+.qa-desc{flex:1;min-width:140px}
+.qa-amt{width:80px}
+.qa-cat{min-width:130px;flex:1}
+.qa-actions{display:flex;gap:8px}
+.btn-add-tx{flex:1;height:44px;border-radius:var(--radius-sm);border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-voice{width:44px;height:44px;border-radius:var(--radius-sm);border:1px solid #2a2a38;background:var(--bg2);color:var(--text2);font-size:18px;cursor:pointer;flex-shrink:0}
+.btn-voice.rec{background:#f05c5c20;border-color:var(--red);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+.voice-hint{font-size:11px;color:var(--text3);margin-top:6px}
+.voice-hint.active{color:var(--red)}
+
+.section{margin:18px 20px 0}
+.section-title{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;margin-bottom:10px}
+
+.tx-list{display:flex;flex-direction:column;gap:6px;padding:0 20px}
+.tx-item{background:var(--bg3);border:1px solid #2a2a38;border-radius:var(--radius-sm);padding:12px;display:flex;align-items:center;gap:10px}
+.tx-item:active{background:var(--bg2)}
+.tx-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.tx-info{flex:1;min-width:0}
+.tx-name{font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tx-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.tx-amt{font-size:14px;font-weight:600;flex-shrink:0}
+.tx-del{font-size:18px;color:var(--text3);cursor:pointer;padding:4px;line-height:1}
+.tx-del:active{color:var(--red)}
+.empty{text-align:center;padding:40px 20px;color:var(--text3)}
+
+.bottom-nav{position:absolute;bottom:0;left:0;right:0;height:68px;background:var(--bg2);border-top:1px solid #2a2a38;display:flex;justify-content:space-around;align-items:center;z-index:50}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;font-size:20px;color:var(--text3);transition:color 0.2s}
+.nav-item.active{color:var(--accent)}
+.nav-label{font-size:10px;font-weight:500}
+
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid #2a2a38;border-radius:100px;padding:10px 20px;font-size:13px;z-index:1000;opacity:0;transition:opacity 0.3s;pointer-events:none}
+.toast.show{opacity:1}
+
+.profile-avatar{width:60px;height:60px;border-radius:50%;background:#7c6ef730;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:600}
+.menu-item{background:var(--bg3);border:1px solid #2a2a38;border-radius:var(--radius-sm);padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;margin:6px 20px}
+.menu-item:active{background:var(--bg2)}
+
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div id="root">
+  <div id="screen-splash" class="screen active">
+    <div class="splash-logo">💰</div>
+    <div class="splash-name">Mis Finanzas</div>
+    <div class="splash-tag">Tu dinero, en orden</div>
+  </div>
+
+  <div id="screen-auth" class="screen">
+    <div class="auth-top">
+      <div class="auth-logo">💰</div>
+      <div class="auth-title">Mis Finanzas</div>
+      <div class="auth-sub">Selecciona tu perfil</div>
+    </div>
+    
+    <div id="panel-select">
+      <div class="users-grid" id="users-grid"></div>
+      <div class="divider">o</div>
+      <button class="btn btn-ghost" onclick="showRegister()">➕ Nueva cuenta</button>
+    </div>
+
+    <div id="panel-login" hidden>
+      <div class="back-btn" onclick="showUserSelect()">←</div>
+      <div style="font-size:16px;font-weight:500;margin-bottom:20px" id="login-uname"></div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <input class="form-input" type="password" id="login-pw" onkeydown="if(event.key==='Enter')doLogin()">
+        <div class="error" id="login-err"></div>
+      </div>
+      <button class="btn btn-primary" onclick="doLogin()">Entrar</button>
+    </div>
+
+    <div id="panel-register" hidden>
+      <div class="back-btn" onclick="showUserSelect()">←</div>
+      <div style="font-size:16px;font-weight:500;margin-bottom:20px">Nueva cuenta</div>
+      <div class="form-group">
+        <label class="form-label">Nombre</label>
+        <input class="form-input" type="text" id="reg-name" placeholder="Tu nombre" maxlength="24">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <input class="form-input" type="password" id="reg-pw" placeholder="Mínimo 6 caracteres">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirmar</label>
+        <input class="form-input" type="password" id="reg-pw2" placeholder="Repite">
+        <div class="error" id="reg-err"></div>
+      </div>
+      <button class="btn btn-primary" style="margin-top:8px" onclick="doRegister()">Crear cuenta</button>
+    </div>
+  </div>
+
+  <div id="screen-app" class="screen">
+    <div id="tab-home" class="app-scroll">
+      <div class="app-header">
+        <div>
+          <div style="font-size:13px;color:var(--text2)">Hola</div>
+          <div class="header-name" id="user-display">Usuario</div>
+        </div>
+        <div class="header-avatar" id="header-av" onclick="switchTab('profile')">👤</div>
+      </div>
+      
+      <div class="hero">
+        <div style="font-size:12px;color:#9998b0;margin-bottom:6px">📅 Saldo</div>
+        <div class="hero-balance" id="hero-balance"><em>€</em>0.00</div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-label">💚 Ingresos</div>
+            <div class="hero-stat-value" id="hero-income">€0</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-label">🔴 Gastos</div>
+            <div class="hero-stat-value" id="hero-expenses">€0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quick-add">
+        <div class="qa-title">Nuevo movimiento</div>
+        <div class="qa-row">
+          <div class="qa-field qa-desc">
+            <label>Descripción</label>
+            <input class="qa-input" type="text" id="qa-desc" placeholder="Supermercado...">
+          </div>
+          <div class="qa-field qa-amt">
+            <label>€</label>
+            <input class="qa-input" type="number" id="qa-amt" placeholder="0.00" min="0" step="0.01">
+          </div>
+        </div>
+        <div class="qa-row">
+          <div class="qa-field qa-cat">
+            <label>Categoría</label>
+            <select class="qa-input" id="qa-cat">
+              <option value="food" selected>🛒 Alimentos</option>
+              <option value="medical">💊 Médico</option>
+              <option value="rent">🏠 Renta</option>
+              <option value="bills">📱 Cuentas</option>
+              <option value="fun">🎮 Recreación</option>
+              <option value="vacation">✈️ Vacaciones</option>
+              <option value="income">💰 Ingresos</option>
+            </select>
+          </div>
+          <div class="qa-field">
+            <label>Fecha</label>
+            <input class="qa-input" type="date" id="qa-date">
+          </div>
+        </div>
+        <div class="qa-actions">
+          <button class="btn-voice" id="voice-btn" onclick="toggleVoice()" title="Entrada por voz">🎙</button>
+          <button class="btn-add-tx" onclick="addTx()">+ Agregar</button>
+        </div>
+        <div class="voice-hint" id="voice-hint">Di: "Gasté 50 euros en supermercado"</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Últimos movimientos</div>
+      </div>
+      <div class="tx-list" id="recent-list"></div>
+    </div>
+
+    <div id="tab-transactions" class="app-scroll" hidden>
+      <div style="padding:16px 20px;font-family:'Playfair Display';font-size:22px;font-weight:500">Movimientos</div>
+      <div class="tx-list" id="all-list"></div>
+    </div>
+
+    <div id="tab-profile" class="app-scroll" hidden>
+      <div style="padding:24px 20px">
+        <div class="profile-avatar" id="profile-av">👤</div>
+        <div style="font-family:'Playfair Display';font-size:22px;margin-top:16px;margin-bottom:4px" id="profile-name"></div>
+        <div style="font-size:13px;color:var(--text2)" id="profile-stats"></div>
+      </div>
+      <div class="menu-item" onclick="logout()">
+        <div style="font-size:20px">🚪</div>
+        <div style="flex:1;font-size:14px;font-weight:500">Cerrar sesión</div>
+      </div>
+    </div>
+
+    <nav class="bottom-nav">
+      <div class="nav-item active" id="nav-home" onclick="switchTab('home')">
+        <div>🏠</div>
+        <div class="nav-label">Inicio</div>
+      </div>
+      <div class="nav-item" id="nav-tx" onclick="switchTab('transactions')">
+        <div>📋</div>
+        <div class="nav-label">Movimientos</div>
+      </div>
+      <div class="nav-item" id="nav-profile" onclick="switchTab('profile')">
+        <div>👤</div>
+        <div class="nav-label">Perfil</div>
+      </div>
+    </nav>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ===== CONFIGURACIÓN =====
+const CATS = {
+  income:   { label:'Ingresos',   emoji:'💰' },
+  food:     { label:'Alimentos',  emoji:'🛒' },
+  medical:  { label:'Médico',     emoji:'💊' },
+  rent:     { label:'Renta',      emoji:'🏠' },
+  bills:    { label:'Cuentas',    emoji:'📱' },
+  fun:      { label:'Recreación', emoji:'🎮' },
+  vacation: { label:'Vacaciones', emoji:'✈️' }
+};
+
+let currentUser = null;
+let currentData = null;
+let recognition = null;
+let isRecording = false;
+
+// ===== HASH =====
+async function hashPassword(pw) {
+  try {
+    const enc = new TextEncoder();
+    const buf = await crypto.subtle.digest('SHA-256', enc.encode(pw + '::mf_2026'));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  } catch(e) {
+    return pw;
+  }
+}
+
+// ===== STORAGE =====
+function getUsers() {
+  try { return JSON.parse(localStorage.getItem('mf_users') || '[]'); } 
+  catch(e) { return []; }
+}
+
+function saveUsers(u) {
+  localStorage.setItem('mf_users', JSON.stringify(u));
+}
+
+function getData(uid) {
+  try { return JSON.parse(localStorage.getItem('mf_d_' + uid) || '{"transactions":[]}'); }
+  catch(e) { return {transactions:[]}; }
+}
+
+function saveData(uid, d) {
+  localStorage.setItem('mf_d_' + uid, JSON.stringify(d));
+}
+
+// ===== UI =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ===== AUTH =====
+function renderUsers() {
+  const users = getUsers();
+  const grid = document.getElementById('users-grid');
+  grid.innerHTML = users.map((u,i) => `
+    <div class="user-card" onclick="selectUser(${i})">
+      <div class="user-avatar">${u.name.substring(0,2).toUpperCase()}</div>
+      <div class="user-name">${u.name}</div>
+      <div class="user-last">Entrar</div>
+    </div>
+  `).join('') + `
+    <div class="user-card" onclick="showRegister()">
+      <div class="user-avatar" style="background:transparent;border:2px dashed #5f5e78">+</div>
+      <div class="user-name">Nueva</div>
+    </div>
+  `;
+}
+
+function selectUser(i) {
+  const u = getUsers()[i];
+  document.getElementById('panel-select').hidden = true;
+  document.getElementById('panel-login').hidden = false;
+  document.getElementById('login-uname').textContent = u.name;
+  document.getElementById('login-pw').value = '';
+  document.getElementById('login-err').textContent = '';
+  document.getElementById('panel-login').dataset.idx = i;
+}
+
+function showRegister() {
+  document.getElementById('panel-select').hidden = true;
+  document.getElementById('panel-register').hidden = false;
+}
+
+function showUserSelect() {
+  document.getElementById('panel-select').hidden = false;
+  document.getElementById('panel-login').hidden = true;
+  document.getElementById('panel-register').hidden = true;
+}
+
+async function doLogin() {
+  const i = parseInt(document.getElementById('panel-login').dataset.idx);
+  const u = getUsers()[i];
+  const pw = document.getElementById('login-pw').value;
+  if(!pw) { document.getElementById('login-err').textContent = 'Ingresa contraseña'; return; }
+  const hash = await hashPassword(pw);
+  if(hash !== u.pwHash) {
+    document.getElementById('login-err').textContent = 'Contraseña incorrecta';
+    return;
+  }
+  currentUser = u;
+  currentData = getData(u.id);
+  enterApp();
+}
+
+async function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const pw = document.getElementById('reg-pw').value;
+  const pw2 = document.getElementById('reg-pw2').value;
+  const err = document.getElementById('reg-err');
+  if(!name) { err.textContent = 'Ingresa nombre'; return; }
+  if(pw.length < 6) { err.textContent = 'Mínimo 6 caracteres'; return; }
+  if(pw !== pw2) { err.textContent = 'No coinciden'; return; }
+  const users = getUsers();
+  if(users.find(u => u.name.toLowerCase() === name.toLowerCase())) {
+    err.textContent = 'Nombre existe';
+    return;
+  }
+  const pwHash = await hashPassword(pw);
+  const nu = {id: 'u'+Date.now(), name, pwHash};
+  users.push(nu);
+  saveUsers(users);
+  currentUser = nu;
+  currentData = {transactions:[]};
+  saveData(nu.id, currentData);
+  enterApp();
+}
+
+// ===== APP =====
+function enterApp() {
+  showScreen('screen-app');
+  document.getElementById('user-display').textContent = currentUser.name;
+  document.getElementById('header-av').textContent = currentUser.name.substring(0,1);
+  document.getElementById('profile-av').textContent = currentUser.name.substring(0,1);
+  document.getElementById('profile-name').textContent = currentUser.name;
+  document.getElementById('qa-date').value = new Date().toISOString().split('T')[0];
+  switchTab('home');
+  renderAll();
+}
+
+function switchTab(tab) {
+  ['home','transactions','profile'].forEach(t => {
+    document.getElementById('tab-'+t).hidden = t !== tab;
+  });
+  ['nav-home','nav-tx','nav-profile'].forEach((n,i) => {
+    document.getElementById(n).classList.toggle('active', ['home','transactions','profile'][i] === tab);
+  });
+}
+
+function addTx() {
+  const desc = document.getElementById('qa-desc').value.trim();
+  const amt = parseFloat(document.getElementById('qa-amt').value);
+  const cat = document.getElementById('qa-cat').value;
+  const date = document.getElementById('qa-date').value;
+  if(!desc || !amt || amt <= 0 || !date) { showToast('⚠️ Completa campos'); return; }
+  currentData.transactions.unshift({id:Date.now(), desc, amount:amt, cat, date});
+  saveData(currentUser.id, currentData);
+  document.getElementById('qa-desc').value = '';
+  document.getElementById('qa-amt').value = '';
+  showToast('✓ Agregado');
+  renderAll();
+}
+
+function deleteTx(id) {
+  currentData.transactions = currentData.transactions.filter(t => t.id !== id);
+  saveData(currentUser.id, currentData);
+  renderAll();
+}
+
+function getFiltered() {
+  const now = new Date();
+  return currentData.transactions.filter(t => {
+    const d = new Date(t.date + 'T12:00:00');
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  });
+}
+
+function renderAll() {
+  const txs = getFiltered();
+  const inc = txs.filter(t => t.cat === 'income').reduce((s,t) => s+t.amount, 0);
+  const exp = txs.filter(t => t.cat !== 'income').reduce((s,t) => s+t.amount, 0);
+  const bal = inc - exp;
+  
+  document.getElementById('hero-balance').innerHTML = `<em>€</em>${Math.abs(bal).toLocaleString('de-DE',{minimumFractionDigits:2})}`;
+  document.getElementById('hero-income').textContent = '€' + inc.toLocaleString('de-DE',{minimumFractionDigits:2});
+  document.getElementById('hero-expenses').textContent = '€' + exp.toLocaleString('de-DE',{minimumFractionDigits:2});
+  document.getElementById('profile-stats').textContent = currentData.transactions.length + ' movimientos';
+  
+  const recList = document.getElementById('recent-list');
+  const allList = document.getElementById('all-list');
+  const html = txs.map(t => {
+    const c = CATS[t.cat] || CATS.other;
+    const d = new Date(t.date + 'T12:00:00');
+    return `<div class="tx-item">
+      <div class="tx-icon">${(c||{emoji:'📦'}).emoji}</div>
+      <div class="tx-info">
+        <div class="tx-name">${t.desc}</div>
+        <div class="tx-meta">${(c||{label:'Otro'}).label}</div>
+      </div>
+      <span class="tx-amt">€${t.amount.toFixed(2)}</span>
+      <span class="tx-del" onclick="deleteTx(${t.id})">✕</span>
+    </div>`;
+  }).join('');
+  recList.innerHTML = html.substring(0, 500) || '<div class="empty">Sin movimientos</div>';
+  allList.innerHTML = html || '<div class="empty">Sin movimientos</div>';
+}
+
+// ===== VOICE =====
+function toggleVoice() {
+  if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    showToast('⚠️ Tu navegador no soporta voz');
+    return;
+  }
+  if(isRecording) { recognition.stop(); return; }
+  const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new Rec();
+  recognition.lang = 'es-ES';
+  recognition.onstart = () => {
+    isRecording = true;
+    document.getElementById('voice-btn').classList.add('rec');
+    document.getElementById('voice-hint').textContent = '🔴 Escuchando...';
+    document.getElementById('voice-hint').classList.add('active');
+  };
+  recognition.onresult = e => {
+    const text = e.results[0][0].transcript;
+    document.getElementById('qa-desc').value = text;
+    const num = text.match(/(\d+(?:[.,]\d{1,2})?)/);
+    if(num) document.getElementById('qa-amt').value = parseFloat(num[1].replace(',','.')).toFixed(2);
+    const lower = text.toLowerCase();
+    if(lower.includes('super') || lower.includes('mercado')) document.getElementById('qa-cat').value = 'food';
+    else if(lower.includes('médico') || lower.includes('doctor')) document.getElementById('qa-cat').value = 'medical';
+    else if(lower.includes('renta') || lower.includes('alquiler')) document.getElementById('qa-cat').value = 'rent';
+    else if(lower.includes('luz') || lower.includes('agua') || lower.includes('internet')) document.getElementById('qa-cat').value = 'bills';
+    else if(lower.includes('cine') || lower.includes('bar')) document.getElementById('qa-cat').value = 'fun';
+    document.getElementById('voice-hint').textContent = '✓ "' + text + '"';
+  };
+  recognition.onend = () => {
+    isRecording = false;
+    document.getElementById('voice-btn').classList.remove('rec');
+    document.getElementById('voice-hint').className = 'voice-hint';
+    document.getElementById('voice-hint').textContent = 'Di: "Gasté 50 euros en supermercado"';
+  };
+  recognition.start();
+}
+
+function logout() {
+  currentUser = null;
+  currentData = null;
+  showScreen('screen-auth');
+  renderUsers();
+}
+
+// ===== INIT =====
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    showScreen('screen-auth');
+    renderUsers();
+  }, 1500);
+});
+</script>
+</body>
+</html>
