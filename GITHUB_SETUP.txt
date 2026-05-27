@@ -1,0 +1,116 @@
+# 🚀 INSTALACIÓN RÁPIDA EN GITHUB PAGES
+
+## Paso 1: Crear cuenta GitHub (1 minuto)
+```
+1. Abre github.com en tu navegador
+2. Haz clic en "Sign up" (arriba a la derecha)
+3. Completa: email, contraseña, nombre de usuario (ej: tunombre123)
+4. Verifica tu correo
+```
+
+## Paso 2: Crear repositorio (2 minutos)
+```
+1. Inicia sesión en GitHub
+2. Haz clic en "+" (arriba a la derecha) → "New repository"
+3. Nombre: mis-finanzas (obligatorio exactamente así)
+4. Descripción: "App para gestionar gastos personales"
+5. Selecciona: Public (importante)
+6. Haz clic en "Create repository"
+```
+
+## Paso 3: Subir los archivos (3 minutos)
+
+### OPCIÓN A: Por navegador (Más fácil)
+```
+1. En tu repositorio recién creado, verás un botón azul "Add file"
+2. Haz clic → "Upload files"
+3. Arrastra estos 7 archivos a la zona de upload:
+   ✓ index.html
+   ✓ app.js
+   ✓ style.css
+   ✓ manifest.json
+   ✓ sw.js
+   ✓ icon-192.png
+   ✓ icon-512.png
+
+4. En la parte inferior, escribe: "Subida inicial de app"
+5. Haz clic en "Commit changes"
+```
+
+### OPCIÓN B: Por Git (Si sabes de terminal)
+```bash
+cd mis-finanzas
+git init
+git add .
+git commit -m "Subida inicial"
+git remote add origin https://github.com/tunombre/mis-finanzas.git
+git push -u origin main
+```
+
+## Paso 4: Activar GitHub Pages (1 minuto)
+```
+1. En tu repositorio, ve a Settings (engranaje, arriba)
+2. En la izquierda, busca "Pages"
+3. En "Source", selecciona:
+   - Branch: main
+   - Folder: / (root)
+4. Haz clic en Save
+5. Espera 1-2 minutos
+```
+
+## Paso 5: Tu app está lista ✓
+```
+Tu URL será:
+https://tunombre.github.io/mis-finanzas/
+
+(reemplaza "tunombre" con tu nombre de usuario GitHub)
+```
+
+## Cómo instalar desde esa URL
+
+### En iPhone (Safari)
+```
+1. Abre Safari → pega tu URL
+2. Espera a que cargue
+3. Toca Compartir (↑ en el cuadrado)
+4. Desplázate y toca "Agregar a la pantalla de inicio"
+5. Confirma → ¡Listo! App instalada
+```
+
+### En Android (Chrome)
+```
+1. Abre Chrome → pega tu URL
+2. Espera a que cargue completamente
+3. Toca ⋮ (3 puntos) → "Instalar aplicación"
+4. Confirma → ¡Listo! App en tu pantalla
+```
+
+---
+
+## ✅ ¡Hecho!
+
+Ahora tienes:
+- App funcionando 24/7 sin configuración
+- URL que puedes compartir con familia/amigos
+- Todos pueden crear sus propias cuentas
+- Datos guardados solo en el dispositivo de cada usuario
+- Funciona offline (una vez cargada)
+
+---
+
+## 💡 Consejos
+
+- **Comparte tu URL** con tu familia para que usen la app
+- **Cada dispositivo** tiene sus propios datos (por seguridad)
+- **Si cambias los archivos**, sube la versión actualizada a GitHub y presiona F5
+- **Es completamente gratis** (GitHub Pages es gratuito)
+
+---
+
+## 🔗 Ejemplo
+Si tu nombre de usuario es "juan", la URL será:
+```
+https://juan.github.io/mis-finanzas/
+```
+
+¡A organizar tus gastos! 💰

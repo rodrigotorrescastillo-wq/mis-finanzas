@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f0f13">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mis Finanzas">
+<title>Mis Finanzas</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<div id="root">
+
+  <!-- SPLASH -->
+  <div class="screen" id="screen-splash">
+    <div class="splash-logo">💰</div>
+    <div class="splash-name">Mis Finanzas</div>
+    <div class="splash-tag">Tu dinero, en orden</div>
+    <div class="splash-bar"><div class="splash-progress"></div></div>
+  </div>
+
+  <!-- AUTH -->
+  <div class="screen hidden" id="screen-auth">
+    <div class="auth-wrap">
+      <!-- Panel: Select User -->
+      <div id="panel-select">
+        <div class="auth-top">
+          <div class="auth-logo">💰</div>
+          <div class="auth-title">Mis Finanzas</div>
+          <div class="auth-sub">Selecciona tu perfil o crea uno nuevo</div>
+        </div>
+        <div class="users-grid" id="users-grid"></div>
+        <div class="divider">o</div>
+        <button class="btn btn-ghost" onclick="showRegister()">➕ Crear nueva cuenta</button>
+      </div>
+
+      <!-- Panel: Login -->
+      <div id="panel-login" style="display:none">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+          <div class="back-btn" onclick="showAuthPanel('select')">←</div>
+          <div id="login-av" style="width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:600"></div>
+          <div>
+            <div style="font-size:15px;font-weight:500" id="login-uname"></div>
+            <div style="font-size:12px;color:var(--text2)">Ingresa tu contraseña</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contraseña</label>
+          <input class="form-input" type="password" id="login-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+          <div class="err-msg" id="login-err"></div>
+        </div>
+        <button class="btn btn-primary" onclick="doLogin()">Entrar</button>
+      </div>
+
+      <!-- Panel: Register -->
+      <div id="panel-register" style="display:none">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+          <div class="back-btn" onclick="showAuthPanel('select')">←</div>
+          <div style="font-family:var(--font-display);font-size:16px;font-weight:500">Crear cuenta</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nombre</label>
+          <input class="form-input" type="text" id="reg-name" placeholder="Tu nombre" maxlength="24">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contraseña</label>
+          <input class="form-input" type="password" id="reg-pw" placeholder="Mínimo 6 caracteres" oninput="checkPwStrength(this.value)">
+          <div class="pw-bar" id="pw-strength-bar"></div>
+          <div class="pw-hint" id="pw-hint">Crea una contraseña segura</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirmar contraseña</label>
+          <input class="form-input" type="password" id="reg-pw2" placeholder="Repite la contraseña">
+          <div class="err-msg" id="reg-err"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Color de perfil</label>
+          <div class="color-picker" id="color-picker"></div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:8px" onclick="doRegister()">Crear cuenta</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div class="screen hidden" id="screen-app">
+    <!-- HOME TAB -->
+    <div id="tab-home" class="tab-scroll fu fu1">
+      <div class="app-header">
+        <div>
+          <div class="hdr-greeting" id="hdr-greeting">Buenos días</div>
+          <div class="hdr-name" id="hdr-name">Usuario</div>
+        </div>
+        <div class="hdr-av" id="header-av" onclick="switchTab('profile')"></div>
+      </div>
+      <div class="hero fu fu2">
+        <div class="hero-period" id="hero-period-lbl">📅 Mayo 2026 · <span onclick="cyclePeriod()" style="color:var(--accent2);cursor:pointer">cambiar ›</span></div>
+        <div class="hero-balance" id="hero-balance"><em>€</em>0.00</div>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="hero-stat-lbl">💚 Ingresos</div><div class="hero-stat-val inc" id="hero-income">€0</div></div>
+          <div class="hero-stat"><div class="hero-stat-lbl">🔴 Gastos</div><div class="hero-stat-val exp" id="hero-exp">€0</div></div>
+        </div>
+      </div>
+      <div class="quick-add fu fu3">
+        <div class="qa-title">Nuevo movimiento</div>
+        <div class="qa-row">
+          <div class="qa-field qa-desc">
+            <label>Descripción</label>
+            <input class="qa-input" type="text" id="qa-desc" placeholder="Supermercado, Renta..." autocapitalize="sentences">
+          </div>
+          <div class="qa-field qa-amt">
+            <label>Monto €</label>
+            <input class="qa-input" type="number" id="qa-amt" placeholder="0.00" min="0" step="0.01" inputmode="decimal">
+          </div>
+        </div>
+        <div class="qa-row" style="margin-top:8px">
+          <div class="qa-field qa-cat">
+            <label>Categoría</label>
+            <select class="qa-input" id="qa-cat">
+              <option value="income">💰 Ingresos</option>
+              <option value="food" selected>🛒 Alimentos</option>
+              <option value="medical">💊 Médico</option>
+              <option value="rent">🏠 Renta</option>
+              <option value="bills">📱 Cuentas</option>
+              <option value="fun">🎮 Recreación</option>
+              <option value="vacation">✈️ Vacaciones</option>
+              <option value="other">📦 Otros</option>
+            </select>
+          </div>
+          <div class="qa-field qa-date">
+            <label>Fecha</label>
+            <input class="qa-input" type="date" id="qa-date">
+          </div>
+        </div>
+        <div class="qa-actions">
+          <button class="btn-voice" id="voice-btn" onclick="toggleVoice()" title="Entrada por voz">🎙</button>
+          <button class="btn-add-tx" onclick="addTx()">+ Agregar</button>
+        </div>
+        <div class="voice-hint" id="voice-hint">Di: "Gasté 50 euros en supermercado"</div>
+      </div>
+      <div class="section fu fu4">
+        <div class="sec-head"><span class="sec-title">Por categoría</span></div>
+      </div>
+      <div class="cats-row" id="cats-row"></div>
+      <div class="section fu fu4">
+        <div class="sec-head">
+          <span class="sec-title">Últimos movimientos</span>
+          <span class="sec-action" onclick="switchTab('transactions')">Ver todos →</span>
+        </div>
+        <div style="padding:0 20px;margin-bottom:20px"><div class="tx-list" id="recent-list"></div></div>
+      </div>
+    </div>
+
+    <!-- TRANSACTIONS TAB -->
+    <div id="tab-transactions" class="tab-scroll" style="display:none;flex-direction:column">
+      <div style="padding:max(16px,env(safe-area-inset-top,0px)+8px) 20px 0;flex-shrink:0">
+        <div style="font-family:var(--font-display);font-size:22px;font-weight:500">Movimientos</div>
+      </div>
+      <div class="filter-row" id="filter-row"></div>
+      <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 20px 20px">
+        <div class="tx-list" id="all-list"></div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS TAB -->
+    <div id="tab-analytics" class="tab-scroll" style="display:none;flex-direction:column">
+      <div style="padding:max(16px,env(safe-area-inset-top,0px)+8px) 20px 0;flex-shrink:0">
+        <div style="font-family:var(--font-display);font-size:22px;font-weight:500">Análisis</div>
+      </div>
+      <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 20px 20px">
+        <div class="stat-grid" id="stat-grid"></div>
+        <div style="margin:18px 0 0;font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em">Distribución de gastos</div>
+        <div class="chart-box" style="margin-top:10px">
+          <div class="chart-legend" id="donut-legend"></div>
+          <div style="position:relative;width:100%;height:240px">
+            <canvas id="donut-chart" role="img"></canvas>
+          </div>
+        </div>
+        <div style="margin:18px 0 0;font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em">Tendencia anual</div>
+        <div class="chart-box" style="margin-top:10px">
+          <div style="position:relative;width:100%;height:200px">
+            <canvas id="trend-chart" role="img"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE TAB -->
+    <div id="tab-profile" class="tab-scroll" style="display:none;flex-direction:column">
+      <div class="profile-hdr">
+        <div class="profile-av-lg" id="profile-av-lg"></div>
+        <div>
+          <div class="profile-nm" id="profile-nm"></div>
+          <div class="profile-sub" id="profile-sub"></div>
+        </div>
+      </div>
+      <div class="menu-list">
+        <div class="menu-item" onclick="showChangePw()">
+          <div class="menu-ico" style="background:#7c6ef720;color:var(--accent)">🔐</div>
+          <div class="menu-txt">Cambiar contraseña</div>
+          <div class="menu-arr">›</div>
+        </div>
+        <div class="menu-item" onclick="exportCSV()">
+          <div class="menu-ico" style="background:#34c77b18;color:var(--green)">📊</div>
+          <div class="menu-txt">Exportar datos CSV</div>
+          <div class="menu-arr">›</div>
+        </div>
+        <div class="menu-item" onclick="window.location.reload()">
+          <div class="menu-ico" style="background:#5ba3f518;color:var(--blue)">🔄</div>
+          <div class="menu-txt">Actualizar app</div>
+          <div class="menu-arr">›</div>
+        </div>
+      </div>
+      <div style="margin:20px 20px 0;border-top:1px solid var(--border);padding-top:20px">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Zona de riesgo</div>
+        <div class="menu-item" onclick="logout()" style="margin-bottom:6px">
+          <div class="menu-ico" style="background:#f05c5c18;color:var(--red)">🚪</div>
+          <div class="menu-txt" style="color:var(--red)">Cerrar sesión</div>
+        </div>
+        <div class="menu-item" onclick="confirmDelete()">
+          <div class="menu-ico" style="background:#f05c5c18;color:var(--red)">🗑</div>
+          <div class="menu-txt" style="color:var(--red)">Eliminar cuenta y datos</div>
+        </div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+      <div class="nav-item active" id="nav-home" onclick="switchTab('home')">
+        <div class="nav-ico">🏠</div>
+        <div class="nav-lbl">Inicio</div>
+      </div>
+      <div class="nav-item" id="nav-transactions" onclick="switchTab('transactions')">
+        <div class="nav-ico">📋</div>
+        <div class="nav-lbl">Movimientos</div>
+      </div>
+      <div class="nav-item" id="nav-analytics" onclick="switchTab('analytics')">
+        <div class="nav-ico">📈</div>
+        <div class="nav-lbl">Análisis</div>
+      </div>
+      <div class="nav-item" id="nav-profile" onclick="switchTab('profile')">
+        <div class="nav-ico" id="nav-profile-ico">👤</div>
+        <div class="nav-lbl">Perfil</div>
+      </div>
+    </nav>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- MODAL -->
+  <div class="modal-bg" id="modal-bg" onclick="closeModal(event)">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
